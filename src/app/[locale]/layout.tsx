@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Montserrat } from "next/font/google";
 
-import { QueryProvider, routing } from "@/shared/config";
+import { routing } from "@/shared/config";
+import { QueryProvider } from "@/shared/ui";
 import "../globals.css";
 
 const montserrat = Montserrat({

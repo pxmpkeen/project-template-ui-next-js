@@ -1,6 +1,5 @@
-export default async function Page() {
-	return (
-		<>
-		</>
-	);
+import { HomePage } from "@/screens/home";
+
+export default function Page() {
+	return <HomePage />;
 }
