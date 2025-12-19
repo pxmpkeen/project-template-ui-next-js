@@ -3,7 +3,7 @@ import {
     type ErrorDetail,
     type ErrorPayload,
     type HttpMethod,
-} from "../types";
+} from "./_types";
 
 function isErrorPayload(value: unknown): value is ErrorPayload {
     return typeof value === "object" && value !== null && "detail" in value;

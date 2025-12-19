@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
 
-import { isAuthError } from "@/shared/lib";
+import { isAuthError } from "@/shared/config";
 
 export function QueryProvider({ children }: { children: ReactNode }) {
     const [queryClient] = useState(

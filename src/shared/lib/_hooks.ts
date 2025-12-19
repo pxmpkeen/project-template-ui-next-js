@@ -11,7 +11,10 @@ import { ExpiredTokenError, InvalidTokenError } from "@/shared/config";
 interface MutationProps<TResponse> {
     onSuccess?: (r: TResponse) => void;
     onError?: (error: unknown) => void;
-    onMutate?: (variables: void, context: MutationFunctionContext) => unknown;
+    onMutate?: (
+        variables: undefined,
+        context: MutationFunctionContext,
+    ) => unknown;
     onSettled?: (
         data: TResponse | undefined,
         error: unknown,

@@ -2,8 +2,6 @@ import cnx from "classnames/bind";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { ExpiredTokenError, InvalidTokenError } from "@/shared/config";
-
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
@@ -22,24 +20,4 @@ function downloadFile(fileBlob: Blob, fileName?: string) {
     URL.revokeObjectURL(url);
 }
 
-function withErrorHandler<T>(
-    fn: () => Promise<T>,
-    handleError: (error: unknown) => void,
-) {
-    return async () => {
-        try {
-            return await fn();
-        } catch (error) {
-            handleError(error);
-            throw error;
-        }
-    };
-}
-
-function isAuthError(error: unknown) {
-    return (
-        error instanceof ExpiredTokenError || error instanceof InvalidTokenError
-    );
-}
-
-export { cn, makeCn, downloadFile, withErrorHandler, isAuthError };
+export { cn, makeCn, downloadFile };

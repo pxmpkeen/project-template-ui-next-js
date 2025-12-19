@@ -9,13 +9,13 @@ async function getAccessToken() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     const tokenValid = isTokenValid(accessToken);
 
-    if (tokenValid === undefined) {
+    if (tokenValid === undefined || accessToken === null) {
         throw new InvalidTokenError("Authentication required");
     } else if (!tokenValid) {
         throw new ExpiredTokenError("Token has expired");
     }
 
-    return accessToken!;
+    return accessToken;
 }
 
 async function checkUserAuthenticated() {
@@ -40,10 +40,17 @@ function clearTokens() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
+function isAuthError(error: unknown) {
+    return (
+        error instanceof ExpiredTokenError || error instanceof InvalidTokenError
+    );
+}
+
 export {
     checkUserAuthenticated,
     getAccessToken,
     clearTokens,
+    isAuthError,
     ExpiredTokenError,
     InvalidTokenError,
 };

@@ -12,7 +12,15 @@
     "formatter": {
         "enabled": true,
         "indentStyle": "space",
-        "indentWidth": 4
+        "indentWidth": 4,
+        "bracketSpacing": true
+    },
+    "javascript": {
+        "formatter": {
+            "bracketSpacing": true,
+            "semicolons": "always",
+            "lineWidth": 80
+        }
     },
     "linter": {
         "enabled": true,
