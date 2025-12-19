@@ -1,3 +1,4 @@
+import { ExpiredTokenError, InvalidTokenError } from "../auth";
 import {
     CallError,
     type ErrorDetail,
@@ -103,6 +104,11 @@ async function extractFile<TResponse>(response: Response, disposition: string) {
     } as TResponse;
 }
 
+// TODO: Implement token refresh logic
+async function refreshToken() {
+    return Promise.reject(new InvalidTokenError() || new ExpiredTokenError());
+}
+
 export {
     isFile,
     isErrorPayload,
@@ -110,4 +116,5 @@ export {
     doFetch,
     parseToFormData,
     extractFile,
+    refreshToken,
 };

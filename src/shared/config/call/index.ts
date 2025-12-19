@@ -1,15 +1,16 @@
-import { ExpiredTokenError, getAccessToken } from "@/shared/config";
+import { getAccessToken } from "../auth";
+import { CallError, type ErrorPayload, type RequestOptions } from "./_types";
 import {
-    CallError,
     doFetch,
-    type ErrorPayload,
     extractFile,
     isErrorPayload,
     isFile,
-    type RequestOptions,
-} from "./lib";
+    refreshToken,
+} from "./_utils";
 
-export async function call<TResponse, TBody = unknown>(
+let refreshTokenPromise: Promise<string> | null = null;
+
+async function call<TResponse, TBody = unknown>(
     path: string,
     options: RequestOptions<TBody> = {},
 ): Promise<TResponse> {
@@ -21,16 +22,26 @@ export async function call<TResponse, TBody = unknown>(
         headers = {},
         isAuthenticated = false,
     } = options;
-
     let accessToken: string | undefined;
 
     if (isAuthenticated) {
         try {
             accessToken = await getAccessToken();
-        } catch (e) {
-            console.error("Authentication error:", e);
-            // Refresh token logic can be added here if needed
-            throw e;
+        } catch (accessTokenError) {
+            console.error("Authentication error:", accessTokenError);
+
+            if (!refreshTokenPromise) {
+                refreshTokenPromise = refreshToken().finally(() => {
+                    refreshTokenPromise = null;
+                });
+            }
+
+            try {
+                accessToken = await refreshTokenPromise;
+            } catch (refreshTokenError) {
+                console.error("Refresh token error:", refreshTokenError);
+                throw refreshTokenError;
+            }
         }
     }
 
@@ -53,7 +64,23 @@ export async function call<TResponse, TBody = unknown>(
         }
     }
 
-    const response = await doFetch(method, headers, body, uri, accessToken);
+    let response = await doFetch(method, headers, body, uri, accessToken);
+
+    if (response.status === 401 && isAuthenticated) {
+        if (!refreshTokenPromise) {
+            refreshTokenPromise = refreshToken().finally(() => {
+                refreshTokenPromise = null;
+            });
+        }
+
+        try {
+            accessToken = await refreshTokenPromise;
+            response = await doFetch(method, headers, body, uri, accessToken);
+        } catch (refreshError) {
+            console.error("Refresh after 401 failed:", refreshError);
+            throw refreshError;
+        }
+    }
 
     if (!response.ok) {
         const contentType = response.headers.get("Content-Type") || "";
@@ -67,10 +94,6 @@ export async function call<TResponse, TBody = unknown>(
                 errorPayload = await response.text();
             }
         } catch {}
-
-        if (response.status === 401 && isAuthenticated) {
-            throw new ExpiredTokenError();
-        }
 
         throw new CallError(
             `Fetch failed with status ${response.status}`,
@@ -93,9 +116,6 @@ export async function call<TResponse, TBody = unknown>(
     return (await response.text()) as TResponse;
 }
 
-export {
-    CallError,
-    type FileResponse,
-    getErrorDetail,
-    parseToFormData,
-} from "./lib";
+export { CallError, type FileResponse, type HttpMethod } from "./_types";
+export { getErrorDetail, parseToFormData } from "./_utils";
+export { call };

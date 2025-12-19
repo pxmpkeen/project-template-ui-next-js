@@ -3,7 +3,11 @@
 import { jwtDecode } from "jwt-decode";
 
 import { ACCESS_TOKEN_KEY } from "@/shared/lib";
-import { type DecodedToken, ExpiredTokenError, InvalidTokenError } from "./lib";
+import {
+    type DecodedToken,
+    ExpiredTokenError,
+    InvalidTokenError,
+} from "./_utils";
 
 async function getAccessToken() {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);

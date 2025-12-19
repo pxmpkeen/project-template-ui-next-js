@@ -1,6 +1,8 @@
 import cnx from "classnames/bind";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { endpoints } from "./_consts";
+import type { Endpoint } from "./_types";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -20,4 +22,17 @@ function downloadFile(fileBlob: Blob, fileName?: string) {
     URL.revokeObjectURL(url);
 }
 
-export { cn, makeCn, downloadFile };
+function resolveEndpoint<T extends Endpoint>(
+    endpoint: T,
+): T & { path: string } {
+    for (const group of Object.values(endpoints)) {
+        for (const ep of Object.values(group.paths)) {
+            if (ep === endpoint)
+                return { ...endpoint, path: group.prefix + endpoint.path };
+        }
+    }
+
+    return endpoint as T & { path: string };
+}
+
+export { cn, makeCn, downloadFile, resolveEndpoint };

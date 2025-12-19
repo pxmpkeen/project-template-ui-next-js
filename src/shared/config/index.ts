@@ -10,6 +10,7 @@ export {
     CallError,
     type FileResponse,
     getErrorDetail,
+    type HttpMethod,
     parseToFormData,
 } from "./call";
 export {
