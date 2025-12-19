@@ -1,39 +1,38 @@
 import {
-    MutationFunction,
-    MutationFunctionContext,
-    QueryFunction,
+    type MutationFunction,
+    type MutationFunctionContext,
+    type QueryFunction,
     useMutation,
-    useQuery
+    useQuery,
 } from "@tanstack/react-query";
 
 import { ExpiredTokenError, InvalidTokenError } from "@/shared/config";
-import { isAuthError } from "../utils";
-import { useMemo } from "react";
 
 interface MutationProps<TResponse> {
     onSuccess?: (r: TResponse) => void;
     onError?: (error: unknown) => void;
-    onMutate?: ((variables: void, context: MutationFunctionContext) => unknown);
-    onSettled?: ((
+    onMutate?: (variables: void, context: MutationFunctionContext) => unknown;
+    onSettled?: (
         data: TResponse | undefined,
         error: unknown,
-        variables: void,
+        variables: undefined,
         onMutateResult: unknown,
-        context: MutationFunctionContext
-    ) => Promise<unknown> | unknown);
+        context: MutationFunctionContext,
+    ) => Promise<unknown> | unknown;
 }
 
 interface QueryProps<TResponse> {
     onError?: (error: unknown) => void;
     enabled?: boolean;
-    select?: ((data: TResponse) => TResponse);
+    select?: (data: TResponse) => TResponse;
 }
 
-function useHandleError(
-    externalOnError?: (error: unknown) => void
-) {
+function useHandleError(externalOnError?: (error: unknown) => void) {
     return (error: unknown) => {
-        if (error instanceof ExpiredTokenError || error instanceof InvalidTokenError) {
+        if (
+            error instanceof ExpiredTokenError ||
+            error instanceof InvalidTokenError
+        ) {
             throw error;
         }
 
@@ -43,40 +42,67 @@ function useHandleError(
     };
 }
 
-function useMutationInternal<TResponse>(
-    { mutationKey, mutationFn, onSuccess, onError, onMutate, onSettled, retry }:
-    {
-        mutationKey?: readonly unknown[];
-        mutationFn?: MutationFunction<TResponse, void>;
-        retry?: number;
-    } & MutationProps<TResponse>
-) {
+function useMutationInternal<TResponse>({
+    mutationKey,
+    mutationFn,
+    onSuccess,
+    onError,
+    onMutate,
+    onSettled,
+    retry,
+}: {
+    mutationKey?: readonly unknown[];
+    mutationFn?: MutationFunction<TResponse, void>;
+    retry?: number;
+} & MutationProps<TResponse>) {
     const wrappedError = useHandleError(onError);
 
-    return useMutation({ mutationKey, mutationFn, onSuccess, onError: wrappedError, onMutate, onSettled, retry });
+    return useMutation({
+        mutationKey,
+        mutationFn,
+        onSuccess,
+        onError: wrappedError,
+        onMutate,
+        onSettled,
+        retry,
+    });
 }
 
-function useQueryInternal<TResponse>(
-    { queryKey, queryFn, onError, retry, retryDelay, staleTime, enabled, select }:
-    {
-        queryKey: readonly unknown[];
-        queryFn?: QueryFunction<TResponse, readonly unknown[]>;
-        retry?: number;
-        retryDelay?: number;
-        staleTime?: number;
-    } & QueryProps<TResponse>
-) {
-    // const options = useMemo(() => ({
-    //     queryKey,
-    //     queryFn,
-    //     retry,
-    //     retryDelay,
-    //     staleTime,
-    //     enabled,
-    //     select
-    // }), [queryKey, queryFn, retry, retryDelay, staleTime, enabled, select]);
+function useQueryInternal<TResponse>({
+    queryKey,
+    queryFn,
+    onError,
+    retry = false,
+    retryDelay = 0,
+    staleTime = 0,
+    enabled,
+    select,
+}: {
+    queryKey: readonly unknown[];
+    queryFn?: QueryFunction<TResponse, readonly unknown[]>;
+    retry?: number | boolean;
+    retryDelay?: number;
+    staleTime?: number;
+} & QueryProps<TResponse>) {
+    const queryResult = useQuery({
+        queryKey,
+        queryFn,
+        retry,
+        retryDelay,
+        staleTime,
+        enabled,
+        select,
+    });
 
-    return useQuery({ queryKey, queryFn, retry: false, retryDelay: 0, staleTime: 0, enabled, select });
+    const error = queryResult.error;
+    if (error && onError) onError(error);
+
+    return queryResult;
 }
 
-export { useMutationInternal as useMutation, useQueryInternal as useQuery, type MutationProps, type QueryProps };
+export {
+    useMutationInternal as useMutation,
+    useQueryInternal as useQuery,
+    type MutationProps,
+    type QueryProps,
+};

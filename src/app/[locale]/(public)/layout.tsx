@@ -1,14 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 
-import { ReactNode } from "react";
-
-export default function Layout(
-    { children }: Readonly<{ children: ReactNode; }>
-) {
-    return (
-        <>
-            { children }
-        </>
-    );
+export default function Layout({
+    children,
+}: Readonly<{ children: ReactNode }>) {
+    return <>{children}</>;
 }
