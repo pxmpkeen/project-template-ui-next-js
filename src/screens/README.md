@@ -18,7 +18,7 @@ Testing & linting
 - Add page-level integration tests and route smoke tests.
 
 Example
-- `src/screens/dashboard/page.tsx` imports a `DashboardFeature` from `src/features/dashboard` and arranges widgets.
+- `src/screens/dashboard/ui/Dashboard.tsx` imports a `DashboardFeature` from `src/features/dashboard` and arranges widgets.
 
 Notes
 - Remember: Screens == Pages in FSD terminology for this template.
