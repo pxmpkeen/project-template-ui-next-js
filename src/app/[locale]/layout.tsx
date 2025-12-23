@@ -1,11 +1,10 @@
 import { Montserrat } from "next/font/google";
 import { redirect } from "next/navigation";
-import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { routing } from "@/shared/config";
-import { QueryProvider } from "@/shared/ui";
+import { Providers } from "@/shared/ui";
 import "../globals.css";
 
 const montserrat = Montserrat({
@@ -38,11 +37,7 @@ export default async function RootLayout({
     return (
         <html lang={locale}>
             <body className={`${montserrat.variable} antialiased`}>
-                <QueryProvider>
-                    <NextIntlClientProvider locale={locale} messages={messages}>
-                        {children}
-                    </NextIntlClientProvider>
-                </QueryProvider>
+                <Providers intl={{ locale, messages }}>{children}</Providers>
             </body>
         </html>
     );
