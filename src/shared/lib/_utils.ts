@@ -1,9 +1,15 @@
 import cnx from "classnames/bind";
 import { type ClassValue, clsx } from "clsx";
+import {
+    type ComponentPropsWithRef,
+    createElement,
+    type ElementType,
+    forwardRef,
+} from "react";
 import { twMerge } from "tailwind-merge";
 
 import { endpoints } from "./_consts";
-import type { Endpoint } from "./_types";
+import type { Endpoint, OverrideProps, PropsOf, RefOf } from "./_types";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -64,5 +70,57 @@ function patchQuery(
     const query = params.toString();
     return query ? `${pathname}?${query}` : pathname;
 }
+/**
+ * Constrain a component’s props type while preserving `ref` forwarding.
+ *
+ * Useful for creating “typed specializations” of existing components
+ * (including intrinsic HTML tags) without changing their runtime behavior.
+ *
+ * @param Component - A React component or intrinsic tag name (e.g. `"button"`).
+ *
+ * @example Intrinsic element
+ * ```tsx
+ * const Button = constrainPropsType<"button", { variant?: "primary" | "secondary" }>("button");
+ *
+ * <Button variant="primary" />
+ * ```
+ *
+ * @example React component
+ * ```tsx
+ * const TypedSelectItem =
+ *   constrainPropsType<typeof SelectItem, { value: "a" | "b" }>(SelectItem);
+ *
+ * <TypedSelectItem value="a" />
+ * ```
+ */
 
-export { cn, makeCn, downloadFile, resolveEndpoint, patchQuery };
+function constrainPropsType<
+    C extends ElementType,
+    O extends Partial<{ [K in keyof PropsOf<C>]: PropsOf<C>[K] }>,
+>(Component: C) {
+    type P = OverrideProps<PropsOf<C>, O>;
+
+    const Wrapped = forwardRef<RefOf<C>, P>((props, ref) => {
+        const elementProps = {
+            ...props,
+            ref,
+        } as unknown as ComponentPropsWithRef<C>;
+        return createElement(Component, elementProps);
+    });
+
+    Wrapped.displayName =
+        typeof Component === "string"
+            ? `constrained(${Component})`
+            : `constrained(${Component.displayName ?? Component.name ?? "Component"})`;
+
+    return Wrapped;
+}
+
+export {
+    cn,
+    makeCn,
+    downloadFile,
+    resolveEndpoint,
+    patchQuery,
+    constrainPropsType,
+};

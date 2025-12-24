@@ -7,6 +7,7 @@ export {
 } from "./_hooks";
 export {
     cn,
+    constrainPropsType,
     downloadFile,
     makeCn,
     patchQuery,
