@@ -1,6 +1,7 @@
 import cnx from "classnames/bind";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+
 import { endpoints } from "./_consts";
 import type { Endpoint } from "./_types";
 
@@ -12,14 +13,22 @@ function makeCn(styles: Record<string, string>) {
     return cnx.bind(styles);
 }
 
-function downloadFile(fileBlob: Blob, fileName?: string) {
+function downloadFile(
+    fileBlob: Blob,
+    fileName = process.env.NEXT_PUBLIC_DEFAULT_FILE_NAME || "download",
+): void {
     const url = URL.createObjectURL(fileBlob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download =
-        fileName || process.env.NEXT_PUBLIC_DEFAULT_FILE_NAME || "download";
-    a.click();
-    URL.revokeObjectURL(url);
+
+    try {
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+    } finally {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 }
 
 function resolveEndpoint<T extends Endpoint>(
