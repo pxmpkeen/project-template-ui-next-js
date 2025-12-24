@@ -5,4 +5,10 @@ export {
     useMutation,
     useQuery,
 } from "./_hooks";
-export { cn, downloadFile, makeCn, resolveEndpoint } from "./_utils";
+export {
+    cn,
+    downloadFile,
+    makeCn,
+    patchQuery,
+    resolveEndpoint,
+} from "./_utils";
