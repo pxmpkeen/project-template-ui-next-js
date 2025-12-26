@@ -27,7 +27,8 @@ const routes = {
  */
 
 const stores = {
-    userStore: "UserStore",
+    userStore: "user-store",
+    authStore: "auth-store",
 };
 
 /**

@@ -1,9 +1,8 @@
 "use client";
 
-import { useRouter } from "@shared/config";
 import { jwtDecode } from "jwt-decode";
-
 import { ACCESS_TOKEN_KEY, routes } from "@/shared/lib";
+import { useRouter } from "../intl";
 import {
     type DecodedToken,
     ExpiredTokenError,

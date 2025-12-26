@@ -10,6 +10,31 @@ import { doFetch, extractFile, isErrorPayload, isFile } from "./_utils";
 
 let refreshTokenPromise: Promise<string> | null = null;
 
+async function handleRefreshTokenAuthFailure(err: unknown): Promise<never> {
+    if (err instanceof InvalidTokenError || err instanceof ExpiredTokenError) {
+        const store = useAuthStore.getState();
+        store.setAuthError(err.type);
+
+        await new Promise<void>((resolve) => {
+            const unsub = useAuthStore.subscribe(
+                (
+                    state: { redirecting: boolean },
+                    prev: { redirecting: boolean },
+                ) => {
+                    if (!prev.redirecting && state.redirecting) {
+                        unsub();
+                        resolve();
+                    }
+                },
+            );
+        });
+
+        throw err;
+    }
+
+    throw err;
+}
+
 async function call<TResponse, TBody = unknown>(
     path: string,
     options: RequestOptions<TBody> = {},
@@ -22,14 +47,13 @@ async function call<TResponse, TBody = unknown>(
         headers = {},
         isAuthenticated = false,
     } = options;
+
     let accessToken: string | undefined;
 
     if (isAuthenticated) {
         try {
             accessToken = await getAccessToken();
-        } catch (accessTokenError) {
-            console.error("Authentication error:", accessTokenError);
-
+        } catch {
             if (!refreshTokenPromise) {
                 refreshTokenPromise = refreshToken().finally(() => {
                     refreshTokenPromise = null;
@@ -39,15 +63,7 @@ async function call<TResponse, TBody = unknown>(
             try {
                 accessToken = await refreshTokenPromise;
             } catch (refreshTokenError) {
-                console.error("Refresh token error:", refreshTokenError);
-                if (
-                    refreshTokenError instanceof InvalidTokenError ||
-                    refreshTokenError instanceof ExpiredTokenError
-                ) {
-                    useAuthStore
-                        .getState()
-                        .setAuthError(refreshTokenError.type);
-                }
+                await handleRefreshTokenAuthFailure(refreshTokenError);
             }
         }
     }
@@ -66,9 +82,8 @@ async function call<TResponse, TBody = unknown>(
                 .filter(([, value]) => value !== undefined)
                 .map(([k, v]) => [k, String(v)]),
         ).toString();
-        if (queryString) {
-            uri += `?${queryString}`;
-        }
+
+        if (queryString) uri += `?${queryString}`;
     }
 
     let response = await doFetch(method, headers, body, uri, accessToken);
@@ -84,22 +99,18 @@ async function call<TResponse, TBody = unknown>(
             accessToken = await refreshTokenPromise;
             response = await doFetch(method, headers, body, uri, accessToken);
         } catch (refreshError) {
-            console.error("Refresh after 401 failed:", refreshError);
-            throw refreshError;
+            await handleRefreshTokenAuthFailure(refreshError);
         }
     }
 
     if (!response.ok) {
         const contentType = response.headers.get("Content-Type") || "";
-
         let errorPayload: unknown = null;
 
         try {
-            if (contentType.includes("application/json")) {
+            if (contentType.includes("application/json"))
                 errorPayload = await response.json();
-            } else {
-                errorPayload = await response.text();
-            }
+            else errorPayload = await response.text();
         } catch {}
 
         throw new CallError(
@@ -114,11 +125,13 @@ async function call<TResponse, TBody = unknown>(
     const disposition = response.headers.get("Content-Disposition") || "";
     const contentType = response.headers.get("Content-Type") || "";
 
-    if (isFile(disposition, contentType))
+    if (isFile(disposition, contentType)) {
         return await extractFile(response, disposition);
+    }
 
-    if (contentType.includes("application/json"))
+    if (contentType.includes("application/json")) {
         return (await response.json()) as TResponse;
+    }
 
     return (await response.text()) as TResponse;
 }

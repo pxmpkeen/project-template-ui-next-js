@@ -38,6 +38,20 @@ function downloadFile(
     }
 }
 
+/**
+ *
+ * @param endpoint
+ * @returns Resolved endpoint with full path including group prefix.
+ * @example
+ * ```tsx
+ * const path = endpoints.user.paths.getProfile;
+ * const endpoint = resolveEndpoint(path); // import { resolveEndpoint } from "./_utils";
+ * // endpoint.method -> "GET"
+ * // endpoint.path -> "/users/profile"
+ * ```
+ *
+ */
+
 function resolveEndpoint<T extends Endpoint>(
     endpoint: T,
 ): T & { path: string } {

@@ -12,6 +12,7 @@ export function AuthRedirectHandler() {
         if (!authError || handled) return;
 
         markHandled();
+        useAuthStore.getState().startRedirect();
 
         if (authError === "invalid-token") {
             router.replace(routes.signIn);
