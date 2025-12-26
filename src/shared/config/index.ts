@@ -5,9 +5,12 @@ export {
     getAccessToken,
     InvalidTokenError,
     isAuthError,
+    useAuthStore,
+    useHandleAuthError,
 } from "./auth";
 export {
     CallError,
+    call,
     type FileResponse,
     getErrorDetail,
     type HttpMethod,
