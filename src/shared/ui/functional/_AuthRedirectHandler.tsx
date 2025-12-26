@@ -1,9 +1,8 @@
 "use client";
 
+import { useAuthStore, useRouter } from "@shared/config";
 import { routes } from "@shared/lib";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuthStore } from "@/shared/config";
 
 export function AuthRedirectHandler() {
     const router = useRouter();
@@ -16,12 +15,10 @@ export function AuthRedirectHandler() {
 
         if (authError === "invalid-token") {
             router.replace(routes.signIn);
-        }
-
-        if (authError === "expired-token") {
+        } else if (authError === "expired-token") {
             router.replace(routes.authError);
         }
-    }, [authError, handled, router.replace, markHandled]);
+    }, [authError, router, handled, markHandled]);
 
     return null;
 }

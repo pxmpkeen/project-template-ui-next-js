@@ -56,9 +56,9 @@ function useHandleAuthError() {
 
     return (error: unknown) => {
         if (error instanceof InvalidTokenError) {
-            router.push(routes.signIn);
+            router.replace(routes.signIn);
         } else if (error instanceof ExpiredTokenError) {
-            router.push(routes.authError);
+            router.replace(routes.authError);
         }
     };
 }

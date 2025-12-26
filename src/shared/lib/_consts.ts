@@ -36,7 +36,7 @@ const stores = {
  * @example
  * ```tsx
  * const path = endpoints.user.paths.getProfile;
- * const endpoint = resolveEndpoint(path);
+ * const endpoint = resolveEndpoint(path); // import { resolveEndpoint } from "./_utils";
  * // endpoint.method -> "GET"
  * // endpoint.path -> "/users/profile"
  * ```
