@@ -2,6 +2,7 @@ import { type AbstractIntlMessages, NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 
 import { Toaster } from "../visual";
+import { AuthRedirectHandler } from "./_AuthRedirectHandler";
 import { QueryProvider } from "./_QueryProvider";
 
 interface ProvidersProps {
@@ -12,7 +13,7 @@ interface ProvidersProps {
     };
 }
 
-export function Providers({ children, intl }: ProvidersProps) {
+function Providers({ children, intl }: ProvidersProps) {
     return (
         <QueryProvider>
             <NextIntlClientProvider
@@ -25,3 +26,5 @@ export function Providers({ children, intl }: ProvidersProps) {
         </QueryProvider>
     );
 }
+
+export { Providers, AuthRedirectHandler };

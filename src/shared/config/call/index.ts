@@ -1,12 +1,12 @@
-import { getAccessToken } from "../auth";
-import { CallError, type ErrorPayload, type RequestOptions } from "./_types";
 import {
-    doFetch,
-    extractFile,
-    isErrorPayload,
-    isFile,
+    ExpiredTokenError,
+    getAccessToken,
+    InvalidTokenError,
     refreshToken,
-} from "./_utils";
+    useAuthStore,
+} from "../auth";
+import { CallError, type ErrorPayload, type RequestOptions } from "./_types";
+import { doFetch, extractFile, isErrorPayload, isFile } from "./_utils";
 
 let refreshTokenPromise: Promise<string> | null = null;
 
@@ -40,7 +40,14 @@ async function call<TResponse, TBody = unknown>(
                 accessToken = await refreshTokenPromise;
             } catch (refreshTokenError) {
                 console.error("Refresh token error:", refreshTokenError);
-                throw refreshTokenError;
+                if (
+                    refreshTokenError instanceof InvalidTokenError ||
+                    refreshTokenError instanceof ExpiredTokenError
+                ) {
+                    useAuthStore
+                        .getState()
+                        .setAuthError(refreshTokenError.type);
+                }
             }
         }
     }

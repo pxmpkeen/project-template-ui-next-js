@@ -1,2 +1,2 @@
-export { Providers } from "./functional";
+export { AuthRedirectHandler, Providers } from "./functional";
 export * from "./visual";
