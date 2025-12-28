@@ -1,15 +1,16 @@
 import cnx from "classnames/bind";
 import { type ClassValue, clsx } from "clsx";
 import {
+    type ComponentPropsWithoutRef,
     type ComponentPropsWithRef,
+    type ComponentRef,
     createElement,
     type ElementType,
     forwardRef,
 } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { endpoints } from "./_consts";
-import type { Endpoint, OverrideProps, PropsOf, RefOf } from "./_types";
+import { type Endpoint, endpoints } from "./_consts";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -37,6 +38,19 @@ function downloadFile(
     }
 }
 
+/**
+ * Resolves an endpoint definition into a full request descriptor.
+ *
+ * @param endpoint Endpoint configuration or path definition.
+ * @returns Resolved endpoint with full path including group prefix.
+ * @example
+ * ```tsx
+ * const path = endpoints.user.paths.getProfile;
+ * const endpoint = resolveEndpoint(path);
+ * // endpoint.method -> "GET"
+ * // endpoint.path -> "/users/profile"
+ * ```
+ */
 function resolveEndpoint<T extends Endpoint>(
     endpoint: T,
 ): T & { path: string } {
@@ -70,6 +84,20 @@ function patchQuery(
     const query = params.toString();
     return query ? `${pathname}?${query}` : pathname;
 }
+
+type PropsOf<C extends ElementType> = ComponentPropsWithoutRef<C>;
+type RefOf<C extends ElementType> = ComponentRef<C>;
+
+/**
+ * Overrides selected props of a component with *narrower* types.
+ * `O` is restricted to existing keys and must be assignable to the original prop types.
+ */
+type OverrideProps<P, O extends Partial<{ [K in keyof P]: P[K] }>> = Omit<
+    P,
+    keyof O
+> &
+    O;
+
 /**
  * Constrain a component’s props type while preserving `ref` forwarding.
  *
@@ -104,7 +132,7 @@ function constrainPropsType<
         const elementProps = {
             ...props,
             ref,
-        } as unknown as ComponentPropsWithRef<C>;
+        } as ComponentPropsWithRef<C>;
         return createElement(Component, elementProps);
     });
 

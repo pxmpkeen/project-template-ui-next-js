@@ -5,8 +5,16 @@ import {
     useMutation,
     useQuery,
 } from "@tanstack/react-query";
-
-import { ExpiredTokenError, InvalidTokenError } from "@/shared/config";
+import { toast } from "sonner";
+import {
+    CallNetworkError,
+    clearTokens,
+    ExpiredTokenError,
+    InvalidTokenError,
+    RedirectionTimeoutError,
+    useRouter,
+} from "@/shared/config";
+import { errors, routes } from "./_consts";
 
 interface MutationProps<TResponse> {
     onSuccess?: (r: TResponse) => void;
@@ -31,12 +39,23 @@ interface QueryProps<TResponse> {
 }
 
 function useHandleError(externalOnError?: (error: unknown) => void) {
+    const router = useRouter();
+
     return (error: unknown) => {
         if (
             error instanceof ExpiredTokenError ||
             error instanceof InvalidTokenError
         ) {
             throw error;
+        }
+
+        if (error instanceof CallNetworkError) {
+            toast.error(errors.NETWORK);
+        }
+
+        if (error instanceof RedirectionTimeoutError) {
+            router.replace(routes.signIn);
+            return;
         }
 
         if (externalOnError) {
@@ -87,6 +106,7 @@ function useQueryInternal<TResponse>({
     retryDelay?: number;
     staleTime?: number;
 } & QueryProps<TResponse>) {
+    const router = useRouter();
     const queryResult = useQuery({
         queryKey,
         queryFn,
@@ -97,8 +117,17 @@ function useQueryInternal<TResponse>({
         select,
     });
 
-    const error = queryResult.error;
-    if (error && onError) onError(error);
+    const error: Error | null = queryResult.error;
+    if (error) {
+        if (error instanceof CallNetworkError) {
+            toast.error(errors.NETWORK);
+        } else if (error instanceof RedirectionTimeoutError) {
+            router.replace(routes.signIn);
+            clearTokens();
+        } else if (onError) {
+            onError(error);
+        }
+    }
 
     return queryResult;
 }

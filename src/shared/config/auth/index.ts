@@ -1,8 +1,8 @@
 "use client";
 
 import { jwtDecode } from "jwt-decode";
-
-import { ACCESS_TOKEN_KEY } from "@/shared/lib";
+import { ACCESS_TOKEN_KEY, routes } from "@/shared/lib";
+import { useRouter } from "../intl";
 import {
     type DecodedToken,
     ExpiredTokenError,
@@ -50,11 +50,34 @@ function isAuthError(error: unknown) {
     );
 }
 
+function useHandleAuthError() {
+    const router = useRouter();
+
+    return (error: unknown) => {
+        if (error instanceof InvalidTokenError) {
+            router.replace(routes.signIn);
+        } else if (error instanceof ExpiredTokenError) {
+            router.replace(routes.authError);
+        }
+    };
+}
+
+// TODO: Implement token refresh logic
+/**
+ * @throws {InvalidTokenError|ExpiredTokenError}
+ */
+async function refreshToken() {
+    return Promise.reject(new InvalidTokenError() || new ExpiredTokenError());
+}
+
+export { useAuthStore } from "./_model";
 export {
     checkUserAuthenticated,
     getAccessToken,
     clearTokens,
     isAuthError,
+    useHandleAuthError,
+    refreshToken,
     ExpiredTokenError,
     InvalidTokenError,
 };

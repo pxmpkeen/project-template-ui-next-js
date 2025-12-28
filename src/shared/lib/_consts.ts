@@ -1,14 +1,54 @@
-import type { EndpointGroup } from "./_types";
+import type az from "@messages/az.json";
+import type en from "@messages/en.json";
+import type ru from "@messages/ru.json";
+import type { HttpMethod } from "../config";
 
 const ACCESS_TOKEN_KEY = "access_token";
 
+/**
+ * Application Routes
+ * @description Define the main routes used in the application.
+ * @example
+ * ```tsx
+ * const signInRoute = routes.signIn;
+ * // signInRoute -> "/sign-in"
+ * ```
+ */
 const routes = {
     authError: "/auth-error",
     signIn: "/sign-in",
 };
 
+/**
+ * Store Keys
+ * @description Define keys for various stores used in the application.
+ * @example
+ * ```tsx
+ * const userStoreKey = stores.userStore;
+ * // userStoreKey -> "UserStore"
+ * ```
+ */
+
 const stores = {
-    userStore: "UserStore",
+    userStore: "user-store",
+    authStore: "auth-store",
+};
+
+/**
+ * API Endpoints
+ * @description Define API endpoints with their HTTP methods and paths.
+ * @example
+ * ```tsx
+ * const path = endpoints.user.paths.getProfile;
+ * const endpoint = resolveEndpoint(path); // import { resolveEndpoint } from "./_utils";
+ * // endpoint.method -> "GET"
+ * // endpoint.path -> "/users/profile"
+ * ```
+ */
+type Endpoint = { method: HttpMethod; path: string };
+type EndpointGroup = {
+    prefix: string;
+    paths: { [endpointName: string]: Endpoint };
 };
 
 const endpoints: { [groupName: string]: EndpointGroup } = {
@@ -20,6 +60,30 @@ const endpoints: { [groupName: string]: EndpointGroup } = {
     },
 };
 
-const errors = {};
+type NestedKeys<T, Prefix extends string = ""> = T extends string
+    ? Prefix
+    : {
+          [K in keyof T]: NestedKeys<
+              T[K],
+              `${Prefix}${Prefix extends "" ? "" : "."}${K & string}`
+          >;
+      }[keyof T];
 
-export { ACCESS_TOKEN_KEY, routes, stores, endpoints, errors };
+type CommonMessageKeys = NestedKeys<typeof az> &
+    NestedKeys<typeof ru> &
+    NestedKeys<typeof en>;
+
+/**
+ * Error Messages
+ * @description Define common error messages keys used in the application.
+ * @example
+ * ```tsx
+ * const networkError = errors.NETWORK;
+ * // networkError -> "A network error occurred. Please try again."
+ * ```
+ */
+const errors = {
+    NETWORK: "global.error",
+} as const satisfies Record<string, CommonMessageKeys>;
+
+export { ACCESS_TOKEN_KEY, routes, stores, endpoints, errors, type Endpoint };
