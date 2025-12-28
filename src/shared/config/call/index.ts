@@ -83,14 +83,14 @@ async function call<TResponse, TBody = unknown, TError = unknown>(
         } catch (refreshError) {
             await handleRefreshTokenAuthFailure(refreshError);
         }
-    }
 
-    try {
-        response = await doFetch(method, headers, body, uri, accessToken);
-    } catch (e) {
-        throw new CallNetworkError(
-            `Network error after token refresh:·${(e as Error).message}`,
-        );
+        try {
+            response = await doFetch(method, headers, body, uri, accessToken);
+        } catch (e) {
+            throw new CallNetworkError(
+                `Network error after token refresh:·${(e as Error).message}`,
+            );
+        }
     }
 
     if (!response.ok) {
