@@ -1,24 +1,10 @@
+import { ExpiredTokenError, InvalidTokenError, useAuthStore } from "../auth";
+import { REDIRECTION_TIMEOUT_MS } from "./_consts";
 import {
-    CallError,
-    type ErrorDetail,
     type ErrorPayload,
     type HttpMethod,
+    RedirectionTimeoutError,
 } from "./_types";
-
-function isErrorPayload(value: unknown): value is ErrorPayload {
-    return typeof value === "object" && value !== null && "detail" in value;
-}
-
-function getErrorDetail(error: unknown): ErrorDetail {
-    if (error instanceof CallError) {
-        if (isErrorPayload(error.payload)) {
-            return { message: error.payload.detail, code: "OK" };
-        } else {
-            return { code: "IP" };
-        }
-    }
-    return { code: "NCE" };
-}
 
 async function doFetch<TBody>(
     method: HttpMethod,
@@ -103,11 +89,61 @@ async function extractFile<TResponse>(response: Response, disposition: string) {
     } as TResponse;
 }
 
+async function handleRefreshTokenAuthFailure(err: unknown): Promise<never> {
+    if (err instanceof InvalidTokenError || err instanceof ExpiredTokenError) {
+        const store = useAuthStore.getState();
+        store.setAuthError(err.type);
+
+        await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                unsub();
+                reject(
+                    new RedirectionTimeoutError(
+                        "Redirecting did not happen within timeout",
+                    ),
+                );
+            }, REDIRECTION_TIMEOUT_MS);
+
+            const unsub = useAuthStore.subscribe((state, prev) => {
+                if (!prev.redirecting && state.redirecting) {
+                    clearTimeout(timeout);
+                    unsub();
+                    resolve();
+                }
+            });
+        });
+
+        throw err;
+    }
+
+    throw err;
+}
+
+function isErrorPayload(value: unknown): value is ErrorPayload {
+    return typeof value === "object" && value !== null && "detail" in value;
+}
+
+type ErrorPayloadType = "ENDPOINT_SPECIFIC" | "DEFAULT";
+
+function getErrorPayload<TError = unknown>(
+    value: unknown,
+    isTError?: (value: unknown) => value is TError,
+): { type: ErrorPayloadType; payload: TError | ErrorPayload } | undefined {
+    if (isErrorPayload(value)) {
+        return { type: "DEFAULT", payload: value };
+    } else if (isTError?.(value)) {
+        return { type: "ENDPOINT_SPECIFIC", payload: value };
+    }
+
+    return undefined;
+}
+
 export {
     isFile,
     isErrorPayload,
-    getErrorDetail,
     doFetch,
     parseToFormData,
     extractFile,
+    handleRefreshTokenAuthFailure,
+    getErrorPayload,
 };

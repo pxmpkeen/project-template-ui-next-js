@@ -10,11 +10,13 @@ export {
 } from "./auth";
 export {
     CallError,
+    CallNetworkError,
     call,
     type FileResponse,
-    getErrorDetail,
+    getErrorPayload,
     type HttpMethod,
     parseToFormData,
+    RedirectionTimeoutError,
 } from "./call";
 export {
     getPathname,

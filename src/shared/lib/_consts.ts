@@ -1,3 +1,6 @@
+import type az from "@messages/az.json";
+import type en from "@messages/en.json";
+import type ru from "@messages/ru.json";
 import type { HttpMethod } from "../config";
 
 const ACCESS_TOKEN_KEY = "access_token";
@@ -57,19 +60,30 @@ const endpoints: { [groupName: string]: EndpointGroup } = {
     },
 };
 
+type NestedKeys<T, Prefix extends string = ""> = T extends string
+    ? Prefix
+    : {
+          [K in keyof T]: NestedKeys<
+              T[K],
+              `${Prefix}${Prefix extends "" ? "" : "."}${K & string}`
+          >;
+      }[keyof T];
+
+type CommonMessageKeys = NestedKeys<typeof az> &
+    NestedKeys<typeof ru> &
+    NestedKeys<typeof en>;
+
 /**
  * Error Messages
- * @description Define common error messages used in the application.
+ * @description Define common error messages keys used in the application.
  * @example
  * ```tsx
- * const networkError = errors.get("NETWORK_ERROR");
+ * const networkError = errors.NETWORK;
  * // networkError -> "A network error occurred. Please try again."
  * ```
  */
-
-const errors: Map<string, string> = new Map([
-    ["NETWORK_ERROR", "A network error occurred. Please try again."],
-    ["UNAUTHORIZED", "You are not authorized to perform this action."],
-]);
+const errors = {
+    NETWORK: "global.error",
+} as const satisfies Record<string, CommonMessageKeys>;
 
 export { ACCESS_TOKEN_KEY, routes, stores, endpoints, errors, type Endpoint };

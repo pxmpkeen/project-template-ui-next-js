@@ -1,43 +1,18 @@
+import { getAccessToken, refreshToken } from "../auth";
+import { CallError, CallNetworkError, type RequestOptions } from "./_types";
 import {
-    ExpiredTokenError,
-    getAccessToken,
-    InvalidTokenError,
-    refreshToken,
-    useAuthStore,
-} from "../auth";
-import { CallError, type ErrorPayload, type RequestOptions } from "./_types";
-import { doFetch, extractFile, isErrorPayload, isFile } from "./_utils";
+    doFetch,
+    extractFile,
+    handleRefreshTokenAuthFailure,
+    isErrorPayload,
+    isFile,
+} from "./_utils";
 
 let refreshTokenPromise: Promise<string> | null = null;
 
-async function handleRefreshTokenAuthFailure(err: unknown): Promise<never> {
-    if (err instanceof InvalidTokenError || err instanceof ExpiredTokenError) {
-        const store = useAuthStore.getState();
-        store.setAuthError(err.type);
-
-        await new Promise<void>((resolve) => {
-            const unsub = useAuthStore.subscribe(
-                (
-                    state: { redirecting: boolean },
-                    prev: { redirecting: boolean },
-                ) => {
-                    if (!prev.redirecting && state.redirecting) {
-                        unsub();
-                        resolve();
-                    }
-                },
-            );
-        });
-
-        throw err;
-    }
-
-    throw err;
-}
-
-async function call<TResponse, TBody = unknown>(
+async function call<TResponse, TBody = unknown, TError = unknown>(
     path: string,
-    options: RequestOptions<TBody> = {},
+    options: RequestOptions<TBody, TError> = {},
 ): Promise<TResponse> {
     const {
         method = "GET",
@@ -46,6 +21,7 @@ async function call<TResponse, TBody = unknown>(
         pathVars,
         headers = {},
         isAuthenticated = false,
+        isTError,
     } = options;
 
     let accessToken: string | undefined;
@@ -86,7 +62,14 @@ async function call<TResponse, TBody = unknown>(
         if (queryString) uri += `?${queryString}`;
     }
 
-    let response = await doFetch(method, headers, body, uri, accessToken);
+    let response: Response;
+    try {
+        response = await doFetch(method, headers, body, uri, accessToken);
+    } catch (e) {
+        throw new CallNetworkError(
+            `Network error after token refresh:·${(e as Error).message}`,
+        );
+    }
 
     if (response.status === 401 && isAuthenticated) {
         if (!refreshTokenPromise) {
@@ -97,10 +80,17 @@ async function call<TResponse, TBody = unknown>(
 
         try {
             accessToken = await refreshTokenPromise;
-            response = await doFetch(method, headers, body, uri, accessToken);
         } catch (refreshError) {
             await handleRefreshTokenAuthFailure(refreshError);
         }
+    }
+
+    try {
+        response = await doFetch(method, headers, body, uri, accessToken);
+    } catch (e) {
+        throw new CallNetworkError(
+            `Network error after token refresh:·${(e as Error).message}`,
+        );
     }
 
     if (!response.ok) {
@@ -113,11 +103,14 @@ async function call<TResponse, TBody = unknown>(
             else errorPayload = await response.text();
         } catch {}
 
-        throw new CallError(
+        throw new CallError<TError>(
             `Fetch failed with status ${response.status}`,
             response.status,
-            isErrorPayload(errorPayload)
-                ? (errorPayload as ErrorPayload)
+            errorPayload,
+            errorPayload
+                ? isErrorPayload(errorPayload) || isTError?.(errorPayload)
+                    ? "OK"
+                    : "IP"
                 : undefined,
         );
     }
@@ -129,6 +122,10 @@ async function call<TResponse, TBody = unknown>(
         return await extractFile(response, disposition);
     }
 
+    if (response.status === 204) {
+        return undefined as TResponse;
+    }
+
     if (contentType.includes("application/json")) {
         return (await response.json()) as TResponse;
     }
@@ -136,6 +133,12 @@ async function call<TResponse, TBody = unknown>(
     return (await response.text()) as TResponse;
 }
 
-export { CallError, type FileResponse, type HttpMethod } from "./_types";
-export { getErrorDetail, parseToFormData } from "./_utils";
+export {
+    CallError,
+    CallNetworkError,
+    type FileResponse,
+    type HttpMethod,
+    RedirectionTimeoutError,
+} from "./_types";
+export { getErrorPayload, parseToFormData } from "./_utils";
 export { call };

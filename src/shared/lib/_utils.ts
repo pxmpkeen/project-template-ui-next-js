@@ -39,19 +39,18 @@ function downloadFile(
 }
 
 /**
+ * Resolves an endpoint definition into a full request descriptor.
  *
- * @param endpoint
+ * @param endpoint Endpoint configuration or path definition.
  * @returns Resolved endpoint with full path including group prefix.
  * @example
  * ```tsx
  * const path = endpoints.user.paths.getProfile;
- * const endpoint = resolveEndpoint(path); // import { resolveEndpoint } from "./_utils";
+ * const endpoint = resolveEndpoint(path);
  * // endpoint.method -> "GET"
  * // endpoint.path -> "/users/profile"
  * ```
- *
  */
-
 function resolveEndpoint<T extends Endpoint>(
     endpoint: T,
 ): T & { path: string } {
