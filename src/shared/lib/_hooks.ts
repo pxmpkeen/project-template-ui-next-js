@@ -5,6 +5,7 @@ import {
     useMutation,
     useQuery,
 } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
     CallNetworkError,
@@ -40,6 +41,7 @@ interface QueryProps<TResponse> {
 
 function useHandleError(externalOnError?: (error: unknown) => void) {
     const router = useRouter();
+    const t = useTranslations();
 
     return (error: unknown) => {
         if (
@@ -50,7 +52,7 @@ function useHandleError(externalOnError?: (error: unknown) => void) {
         }
 
         if (error instanceof CallNetworkError) {
-            toast.error(errors.NETWORK);
+            toast.error(t(errors.NETWORK));
         }
 
         if (error instanceof RedirectionTimeoutError) {
@@ -107,6 +109,7 @@ function useQueryInternal<TResponse>({
     staleTime?: number;
 } & QueryProps<TResponse>) {
     const router = useRouter();
+    const t = useTranslations();
     const queryResult = useQuery({
         queryKey,
         queryFn,
@@ -120,7 +123,7 @@ function useQueryInternal<TResponse>({
     const error: Error | null = queryResult.error;
     if (error) {
         if (error instanceof CallNetworkError) {
-            toast.error(errors.NETWORK);
+            toast.error(t(errors.NETWORK));
         } else if (error instanceof RedirectionTimeoutError) {
             router.replace(routes.signIn);
             clearTokens();
