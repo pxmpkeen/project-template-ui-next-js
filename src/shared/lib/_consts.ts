@@ -45,20 +45,20 @@ const stores = {
  * // endpoint.path -> "/users/profile"
  * ```
  */
-type Endpoint = { method: HttpMethod; path: string };
+type Endpoint = { method: HttpMethod; path: string; key: string };
 type EndpointGroup = {
     prefix: string;
     paths: { [endpointName: string]: Endpoint };
 };
 
-const endpoints: { [groupName: string]: EndpointGroup } = {
+const endpoints = {
     user: {
         prefix: "/users",
         paths: {
-            getProfile: { method: "GET", path: "/profile" },
+            getProfile: { method: "GET", path: "/profile", key: "profile" },
         },
     },
-};
+} as const satisfies Record<string, EndpointGroup>;
 
 type NestedKeys<T, Prefix extends string = ""> = T extends string
     ? Prefix
