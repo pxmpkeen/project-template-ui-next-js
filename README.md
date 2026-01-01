@@ -50,3 +50,6 @@ Refer to each library's docs for deeper customization:
 ## Deploy
 
 Deploy as a typical Next.js app (Vercel is recommended): see https://nextjs.org/docs/deployment
+
+## Illustration
+[Project Architecture](https://excalidraw.com/#json=_ETGqwyAfQg-Ahtya795n,H9qBE7SpgUfmS6voctOF8A)
