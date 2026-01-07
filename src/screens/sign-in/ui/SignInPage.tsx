@@ -2,9 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@shared/config";
-import { errors } from "@shared/lib";
+import { errors, isLeafMessageKey, useTranslations } from "@shared/lib";
 import { Button, Input } from "@shared/ui";
-import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -24,11 +23,12 @@ const SignInSchema = z.object({
 type SignInFormValues = z.infer<typeof SignInSchema>;
 
 export default function SignInPage() {
-    const t = useTranslations("");
+    const tError = useTranslations();
+    const t = useTranslations("auth");
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting },
+        formState: { errors: formErrors, isSubmitting },
     } = useForm<SignInFormValues>({
         resolver: zodResolver(SignInSchema),
         mode: "onBlur",
@@ -43,52 +43,58 @@ export default function SignInPage() {
     };
 
     return (
-        <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 max-w-md mx-auto"
-        >
-            {/* Email */}
-            <div>
-                <Input
-                    placeholder="Enter your email"
-                    {...register("email")}
-                    aria-invalid={!!errors.email}
-                    aria-describedby={emailId}
-                />
-                {errors.email?.message && (
-                    <p id={emailId}>{t(errors.email.message)}</p>
-                )}
-            </div>
+        <div className="flex flex-col gap-8 items-center p-8 rounded-xl bg-gray-100 w-120">
+            <h1 className="text-xl font-bold">{t("headings.signIn")}</h1>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-4 max-w-md mx-auto w-full"
+            >
+                {/* Email */}
+                <div>
+                    <Input
+                        type="email"
+                        placeholder={t("inputs.signIn.email.placeholder")}
+                        {...register("email")}
+                        aria-invalid={!!formErrors.email}
+                        aria-describedby={emailId}
+                    />
+                    {isLeafMessageKey(formErrors.email?.message) && (
+                        <p id={emailId}>{tError(formErrors.email.message)}</p>
+                    )}
+                </div>
 
-            {/* Password */}
-            <div>
-                <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...register("password")}
-                    aria-invalid={!!errors.password}
-                    aria-describedby={passwordId}
-                />
-                {errors.password?.message && (
-                    <p id={passwordId}>
-                        {t(errors.password.message, {
-                            min: passwordMinLength,
-                            max: passwordMaxLength,
-                        })}
-                    </p>
-                )}
-            </div>
+                {/* Password */}
+                <div>
+                    <Input
+                        type="password"
+                        placeholder={t("inputs.signIn.password.placeholder")}
+                        {...register("password")}
+                        aria-invalid={!!formErrors.password}
+                        aria-describedby={passwordId}
+                    />
+                    {isLeafMessageKey(formErrors.password?.message) && (
+                        <p id={passwordId}>
+                            {tError(formErrors.password.message, {
+                                min: passwordMinLength,
+                                max: passwordMaxLength,
+                            })}
+                        </p>
+                    )}
+                </div>
 
-            {/* Submit */}
-            <div>
-                <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full"
-                >
-                    {isSubmitting ? "Signing in..." : "Sign In"}
-                </Button>
-            </div>
-        </form>
+                {/* Submit */}
+                <div>
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full"
+                    >
+                        {isSubmitting
+                            ? t("buttons.signIn.loading")
+                            : t("buttons.signIn.default")}
+                    </Button>
+                </div>
+            </form>
+        </div>
     );
 }

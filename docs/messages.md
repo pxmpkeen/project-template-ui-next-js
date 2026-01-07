@@ -22,19 +22,21 @@ Like:
     },
     "inputGroupName": {
         "label": "Label of input group",
-        "firstInput": {
-            "placeholder": "Enter first value",
-            "errors": {
-                "invalid": "Invalid first input",
-                "required": "First input is required"
-            }
-        },
-        "secondInput": {
-            "placeholder": "Enter second value",
-            "errors": {
-                "invalid": "Invalid second input",
-                "required": "Second input is required"
-            }
+        "inputs": {
+			"firstInput": {
+				"placeholder": "Enter first value",
+				"errors": {
+					"invalid": "Invalid first input",
+					"required": "First input is required"
+				}
+			},
+			"secondInput": {
+				"placeholder": "Enter second value",
+				"errors": {
+					"invalid": "Invalid second input",
+					"required": "Second input is required"
+				}
+			}
         },
         "caption": "Additional information about the input group"
     }

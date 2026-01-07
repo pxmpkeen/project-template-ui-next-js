@@ -1,7 +1,5 @@
-import type az from "@messages/az.json";
-import type en from "@messages/en.json";
-import type ru from "@messages/ru.json";
 import type { HttpMethod } from "../config";
+import type { LeafMessageKeys } from "./_types";
 
 const ACCESS_TOKEN_KEY = "access_token";
 
@@ -60,19 +58,6 @@ const endpoints = {
     },
 } as const satisfies Record<string, EndpointGroup>;
 
-type NestedKeys<T, Prefix extends string = ""> = T extends string
-    ? Prefix
-    : {
-          [K in keyof T]: NestedKeys<
-              T[K],
-              `${Prefix}${Prefix extends "" ? "" : "."}${K & string}`
-          >;
-      }[keyof T];
-
-type CommonMessageKeys = NestedKeys<typeof az> &
-    NestedKeys<typeof ru> &
-    NestedKeys<typeof en>;
-
 /**
  * Error Messages
  * @description Define common error messages keys used in the application.
@@ -84,11 +69,11 @@ type CommonMessageKeys = NestedKeys<typeof az> &
  */
 const errors = {
     NETWORK: "global.errors.network",
-    REQUIRED_EMAIL: "auth.inputs.email.errors.required",
-    INVALID_EMAIL: "auth.inputs.email.errors.invalid",
-    REQUIRED_PASSWORD: "auth.inputs.password.errors.required",
-    PASSWORD_MIN_LENGTH: "auth.inputs.password.errors.minLength",
-    PASSWORD_MAX_LENGTH: "auth.inputs.password.errors.maxLength",
-} as const satisfies Record<string, CommonMessageKeys>;
+    REQUIRED_EMAIL: "auth.inputs.signIn.email.errors.required",
+    INVALID_EMAIL: "auth.inputs.signIn.email.errors.invalid",
+    REQUIRED_PASSWORD: "auth.inputs.signIn.password.errors.required",
+    PASSWORD_MIN_LENGTH: "auth.inputs.signIn.password.errors.minLength",
+    PASSWORD_MAX_LENGTH: "auth.inputs.signIn.password.errors.maxLength",
+} as const satisfies Record<string, LeafMessageKeys>;
 
 export { ACCESS_TOKEN_KEY, routes, stores, endpoints, errors, type Endpoint };

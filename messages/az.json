@@ -14,19 +14,21 @@
             "signIn": "Hesabınıza daxil olun"
         },
         "inputs": {
-            "email": {
-                "placeholder": "Email ünvanınızı daxil edin",
-                "errors": {
-                    "invalid": "Daxil edilmiş email ünvanı etibarlı deyil.",
-                    "required": "Email ünvanı tələb olunur."
-                }
-            },
-            "password": {
-                "placeholder": "Şifrənizi daxil edin",
-                "errors": {
-                    "required": "Şifrə tələb olunur.",
-                    "minLength": "Şifrə ən azı {min} simvol uzunluğunda olmalıdır.",
-                    "maxLength": "Şifrə ən çoxu {max} simvol uzunluğunda ola bilər."
+            "signIn": {
+                "email": {
+                    "placeholder": "Email ünvanınızı daxil edin",
+                    "errors": {
+                        "invalid": "Daxil edilmiş email ünvanı etibarlı deyil.",
+                        "required": "Email ünvanı tələb olunur."
+                    }
+                },
+                "password": {
+                    "placeholder": "Şifrənizi daxil edin",
+                    "errors": {
+                        "required": "Şifrə tələb olunur.",
+                        "minLength": "Şifrə ən azı {min} simvol uzunluğunda olmalıdır.",
+                        "maxLength": "Şifrə ən çoxu {max} simvol uzunluğunda ola bilər."
+                    }
                 }
             }
         },
