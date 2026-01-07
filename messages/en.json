@@ -1,5 +1,40 @@
 {
     "global": {
-        "error": "Some error occurred. Please try again later."
+        "errors": {
+            "network": "A network error occurred. Please check your internet connection and try again.",
+            "server": "An unknown error occurred. Please try again later.",
+            "unavailable": "Service is unavailable. Please try again later.",
+            "timeout": "The operation timed out. Please try again.",
+            "unauthorized": "You are not authorized. Please sign in or create an account.",
+            "forbidden": "You do not have permission to perform this action."
+        }
+    },
+    "auth": {
+        "headings": {
+            "signIn": "Sign in to your account"
+        },
+        "inputs": {
+            "email": {
+                "placeholder": "Enter your email",
+                "errors": {
+                    "invalid": "The email address entered is not valid.",
+                    "required": "Email is required."
+                }
+            },
+            "password": {
+                "placeholder": "Enter your password",
+                "errors": {
+                    "required": "Password is required.",
+                    "minLength": "Password must be at least {min} characters long.",
+                    "maxLength": "Password can be at most {max} characters long."
+                }
+            }
+        },
+        "buttons": {
+            "signIn": {
+                "default": "Sign In",
+                "loading": "Signing in..."
+            }
+        }
     }
 }

@@ -83,7 +83,12 @@ type CommonMessageKeys = NestedKeys<typeof az> &
  * ```
  */
 const errors = {
-    NETWORK: "global.error",
+    NETWORK: "global.errors.network",
+    REQUIRED_EMAIL: "auth.inputs.email.errors.required",
+    INVALID_EMAIL: "auth.inputs.email.errors.invalid",
+    REQUIRED_PASSWORD: "auth.inputs.password.errors.required",
+    PASSWORD_MIN_LENGTH: "auth.inputs.password.errors.minLength",
+    PASSWORD_MAX_LENGTH: "auth.inputs.password.errors.maxLength",
 } as const satisfies Record<string, CommonMessageKeys>;
 
 export { ACCESS_TOKEN_KEY, routes, stores, endpoints, errors, type Endpoint };
