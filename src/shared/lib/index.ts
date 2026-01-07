@@ -1,5 +1,5 @@
 export { ACCESS_TOKEN_KEY, endpoints, errors, routes, stores } from "./_consts";
-export { isLeafMessageKey } from "./_guards";
+export { isErrorMessageKey } from "./_guards";
 export {
     type MutationProps,
     type QueryProps,

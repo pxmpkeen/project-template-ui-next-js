@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@shared/config";
-import { errors, isLeafMessageKey, useTranslations } from "@shared/lib";
+import { errors, isErrorMessageKey, useTranslations } from "@shared/lib";
 import { Button, Input } from "@shared/ui";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -58,7 +58,7 @@ export default function SignInPage() {
                         aria-invalid={!!formErrors.email}
                         aria-describedby={emailId}
                     />
-                    {isLeafMessageKey(formErrors.email?.message) && (
+                    {isErrorMessageKey(formErrors.email?.message) && (
                         <p id={emailId}>{tError(formErrors.email.message)}</p>
                     )}
                 </div>
@@ -72,7 +72,7 @@ export default function SignInPage() {
                         aria-invalid={!!formErrors.password}
                         aria-describedby={passwordId}
                     />
-                    {isLeafMessageKey(formErrors.password?.message) && (
+                    {isErrorMessageKey(formErrors.password?.message) && (
                         <p id={passwordId}>
                             {tError(formErrors.password.message, {
                                 min: passwordMinLength,
