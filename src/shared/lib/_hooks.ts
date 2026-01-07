@@ -5,7 +5,7 @@ import {
     useMutation,
     useQuery,
 } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { type Formats, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
     CallNetworkError,
@@ -16,6 +16,11 @@ import {
     useRouter,
 } from "@/shared/config";
 import { errors, routes } from "./_consts";
+import type {
+    BranchMessageKeys,
+    LeafMessageKeys,
+    RelativeLeafKeys,
+} from "./_types";
 
 interface MutationProps<TResponse> {
     onSuccess?: (r: TResponse) => void;
@@ -135,9 +140,34 @@ function useQueryInternal<TResponse>({
     return queryResult;
 }
 
+function useTranslationsInternal(): <K extends LeafMessageKeys>(
+    key: K,
+    values?: Record<string, string | number | Date>,
+    formats?: Formats,
+) => string;
+
+function useTranslationsInternal<N extends BranchMessageKeys>(
+    namespace: N,
+): <K extends RelativeLeafKeys<N, LeafMessageKeys>>(
+    key: K,
+    values?: Record<string, string | number | Date>,
+    formats?: Formats,
+) => string;
+
+function useTranslationsInternal<N extends BranchMessageKeys>(namespace?: N) {
+    const t = useTranslations<BranchMessageKeys>(namespace);
+
+    return (
+        key: string,
+        values?: Record<string, string | number | Date>,
+        formats?: Formats,
+    ) => t(key, values, formats);
+}
+
 export {
     useMutationInternal as useMutation,
     useQueryInternal as useQuery,
     type MutationProps,
     type QueryProps,
+    useTranslationsInternal as useTranslations,
 };

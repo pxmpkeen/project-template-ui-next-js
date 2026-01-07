@@ -1,5 +1,42 @@
 {
     "global": {
-        "error": "Xəta baş verdi. Zəhmət olmasa, bir az sonra yenidən cəhd edin."
+        "errors": {
+            "network": "Şəbəkə xətası baş verdi. Zəhmət olmasa, internet bağlantınızı yoxlayın və yenidən cəhd edin.",
+            "server": "Naməlum xəta baş verdi. Zəhmət olmasa, bir az sonra yenidən cəhd edin.",
+            "unavailable": "Xidmət mövcud deyil. Zəhmət olmasa, bir az sonra yenidən cəhd edin.",
+            "timeout": "Əməliyyat vaxt aşımına uğradı. Zəhmət olmasa, yenidən cəhd edin.",
+            "unauthorized": "Səlahiyyətiniz yoxdur. Zəhmət olmasa, daxil olun və ya hesab yaradın.",
+            "forbidden": "Bu əməliyyatı yerinə yetirmək üçün icazəniz yoxdur."
+        }
+    },
+    "auth": {
+        "headings": {
+            "signIn": "Hesabınıza daxil olun"
+        },
+        "inputs": {
+            "signIn": {
+                "email": {
+                    "placeholder": "Email ünvanınızı daxil edin",
+                    "errors": {
+                        "invalid": "Daxil edilmiş email ünvanı etibarlı deyil.",
+                        "required": "Email ünvanı tələb olunur."
+                    }
+                },
+                "password": {
+                    "placeholder": "Şifrənizi daxil edin",
+                    "errors": {
+                        "required": "Şifrə tələb olunur.",
+                        "minLength": "Şifrə ən azı {min} simvol uzunluğunda olmalıdır.",
+                        "maxLength": "Şifrə ən çoxu {max} simvol uzunluğunda ola bilər."
+                    }
+                }
+            }
+        },
+        "buttons": {
+            "signIn": {
+                "default": "Daxil ol",
+                "loading": "Daxil olunur..."
+            }
+        }
     }
 }
