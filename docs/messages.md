@@ -5,40 +5,44 @@ Like:
 
 ```json
 {
-    "buttonName": {
-        "default": "Default",
-        "loading": "Loading...",
-        "disabled": "Disabled"
-    },
-    "inputName": {
-        "placeholder": "Enter text",
-        "errors": {
-            "invalid": "Invalid input",
-            "required": "This field is required"
-        },
-        "label": "Label of input",
-        "caption": "Additional information about the input",
-        "help": "Help text for the input"
-    },
-    "inputGroupName": {
-        "label": "Label of input group",
-        "inputs": {
-			"firstInput": {
-				"placeholder": "Enter first value",
-				"errors": {
-					"invalid": "Invalid first input",
-					"required": "First input is required"
-				}
-			},
-			"secondInput": {
-				"placeholder": "Enter second value",
-				"errors": {
-					"invalid": "Invalid second input",
-					"required": "Second input is required"
+	"user": {
+		"buttons": {
+			"createUser": {
+				"default": "Create User",
+				"tooltip": "Click to create a new user",
+				"loading": "Creating User..."
+			}
+		}
+	},
+	"auth": {
+		"headings": {
+			"signIn": "Sign in to your account"
+		},
+		"inputs": {
+			"signIn": {
+				"email": {
+					"placeholder": "Enter your email",
+					"errors": {
+						"invalid": "The email address entered is not valid.",
+						"required": "Email is required."
+					}
+				},
+				"password": {
+					"placeholder": "Enter your password",
+					"errors": {
+						"required": "Password is required.",
+						"minLength": "Password must be at least {min} characters long.",
+						"maxLength": "Password can be at most {max} characters long."
+					}
 				}
 			}
-        },
-        "caption": "Additional information about the input group"
-    }
+		},
+		"buttons": {
+			"signIn": {
+				"default": "Sign In",
+				"loading": "Signing in..."
+			}
+		}
+	}
 }
 ```
